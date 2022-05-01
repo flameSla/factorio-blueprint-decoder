@@ -9,8 +9,8 @@ A short tour through the workflow:
 ```
  - `encode-export-string.py` converts JSON into a packed import/export string:
 ```
-      python.exe encode-export-string.py < tests\win\json.txt > tests\win\export.txt
-      python.exe encode-export-string.py < tests\win\json.txt
+      python encode-export-string.py < tests\win\json.txt > tests\win\export.txt
+      python encode-export-string.py < tests\win\json.txt
 ```
  - That import/export string can be read back into Factorio using the command
 "import string".
