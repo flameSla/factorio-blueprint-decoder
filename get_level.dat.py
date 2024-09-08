@@ -60,17 +60,12 @@ def get_leveldat(save_file_name, out):
                 if s1 != s2:
                     error(f"ERROR - incorrect size of the unpacked file.")
                     exit(2)
-                else:
-                    error(f"The file size is correct {s1} = {s2}")
 
 
 ################################################################
 #
 # main
-
 if __name__ == "__main__":
-    temporary_directory = ""
-
     parser = argparse.ArgumentParser(
         description="Unpacks the level.dat file from the save."
     )
