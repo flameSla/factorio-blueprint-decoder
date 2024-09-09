@@ -39,6 +39,9 @@ class Deserializer:
     def read_u32(self):
         return self.read_fmt(self.u32)
 
+    def read_double(self):
+        return self.read_fmt(Struct("d"))
+
     def read_str(self, dtype=None):
         if self.version >= (0, 16, 0, 0):
             length = self.read_optim(dtype or self.u32)
@@ -77,9 +80,9 @@ def get_tree_pars(ds):
             length = ds.read_u8()
             if length == 0xFF:
                 length = ds.read_u32()
-            string = ds.read(length).decode("utf-8")
-            pass
+            s = ds.read(length).decode("utf-8")
         ds.print_tell()
+        return s
 
     ds.print_tell()
     par1 = ds.read_u8()
@@ -88,20 +91,24 @@ def get_tree_pars(ds):
     if par1 > 5 or par2 > 1:
         raise Exception("invalid parameters")
     if par1 == 1:
-        ds.read_u8()  # read bool?
+        # read bool?
+        return ds.read_bool()
     elif par1 == 2:
-        ds.read_u32()  # read string?
-        ds.read_u32()
+        # read double?
+        return ds.read_double()
     elif par1 == 3:
-        loadImmutableString(ds)
+        return loadImmutableString(ds)
     elif par1 != 5:
         raise Exception("invalid parameters")
     else:
+        res = {}
         count = ds.read_u32()
         ds.print_tell()
         for i in range(count):
-            loadImmutableString(ds)
-            get_tree_pars(ds)
+            name = loadImmutableString(ds)
+            val = get_tree_pars(ds)
+            res[name] = val
+        return res
 
 
 # ====================================
@@ -217,7 +224,7 @@ class SaveFile:
         self.startupSettingsCrc = ds.read_u32()  # =0 ???
         ds.print_tell()
 
-        get_tree_pars(ds)
+        self.PropertyTree = get_tree_pars(ds)
 
         self.updateTick = ds.read_u32()
         self.entityTick = ds.read_u32()
@@ -230,7 +237,7 @@ class SaveFile:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="get ticks from from the save.")
-    parser.add_argument("save_file_name", nargs="?", default="Ind_Rev_109.zip")
+    parser.add_argument("save_file_name", nargs="?", default="Bob - 600.zip")
     opt = parser.parse_args()
 
     try:
